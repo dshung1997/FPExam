@@ -1,3 +1,4 @@
+val listRandom = [4, 5, 4, 5, 5, 4, 5, 5, 5, 2, 3, 1, 2, 5, 2, 5, 1, 5, 3, 5, 5, 5, 4, 5, 4, 5, 5, 4, 1, 4, 3, 2, 3, 5, 2, 5, 5, 5, 5, 5, 1,4, 4, 4, 5, 3, 5, 1, 3, 5, 3, 1, 5, 4, 4, 5, 2, 4, 4, 4, 1, 5, 1, 4, 1, 3]
 
 
 (*
@@ -14,29 +15,7 @@ datatype move = Pass | Move of int; (* 0, 1, 2 -> 63*)
 structure Reversi_AI =
 struct
 	type T = int * (int list)
-
-    (* val cellUtility =   [ 
-                        25, ~5, 14, 10, 10, 14, ~5, 25,
-                        ~5, ~7, ~4, 1, 1, ~4, ~7, ~5,
-                        14, ~4, 3, 2, 2, 3, ~4, 14,
-                        10, 1, 2, ~6, ~6, 2, 1, 10,
-                        10, 1, 2, ~6, ~6, 2, 1, 10,
-                        14, ~4, 3, 2, 2, 3, ~4, 14,
-                        ~5, ~7, ~4, 1, 1, ~4, ~7, ~5,
-                        25, ~5, 14, 10, 10, 14, ~5, 25
-                    ] *)
-
-	val cellUtility = [
-                    99, ~8, 8, 6, 6, 8, ~8, 99, 
-                    ~8, ~24, ~4, ~3, ~3, ~4, ~24, ~8, 
-                    8, ~4, 7, 4, 4, 7, ~4, 8, 
-                    6, ~3, 4, 0, 0, 4, ~3, 6, 
-                    6, ~3, 4, 0, 0, 4, ~3, 6, 
-                    8, ~4, 7, 4, 4, 7, ~4, 8, 
-                    ~8, ~24, ~4, ~3, ~3, ~4, ~24, ~8, 
-                    99, ~8, 8, 6, 6, 8, ~8, 99
-                ]
-
+    
 	val originalBoard = [	0, 0, 0, 0, 0, 0, 0, 0,
 							0, 0, 0, 0, 0, 0, 0, 0,
 							0, 0, 0, 0, 0, 0, 0, 0,
@@ -182,29 +161,6 @@ struct
 					listValidMoves
 				end
 
-			fun getHeuristic (l: int list) = 
-				let
-					fun count [] _ count1 count2 va = (count1, count2, va)
-					| count _ [] count1 count2 va = (count1, count2, va)
-					| count (x::xs) (v::vs) count1 count2 va = 
-							if(x = 1) then
-								(count xs vs (count1+1) count2 (va+x))
-							else if(x = ~1) then
-								(count xs vs count1 (count2+1) (va-x))
-							else
-								(count xs vs count1 count2 va)
-
-					val (c1, c2, v) = count l cellUtility 0 0 0
-					val p = (Real.fromInt (c1-c2)) / (Real.fromInt (c1+c2))
-					val m1 = List.length (getAllValidMoves l 1)
-					val m2 = List.length (getAllValidMoves l ~1)
-					val f = if(m1+m2=0) then 0.0 else (Real.fromInt (m1-m2)) / (Real.fromInt (m1+m2))
-
-					val h = (Real.fromInt v) + 50.0*p + 100.0*f
-				in
-					h
-				end
-
 			fun getMiddleNodes (from: int) (to: int) = 
 				let
 					val fromy = from div 8
@@ -231,8 +187,6 @@ struct
 
 			fun update (l: int list) (from: int) (to: int list) (v: int) = 
 				let
-
-					(* val middleNodes = getMiddleNodes from to *)
 
 					fun update' [] _ _ acc = List.rev acc
 					| update' l' [] _ acc = (List.rev acc) @ l'
@@ -266,13 +220,13 @@ struct
 
                     fun getRandomInt (i: int) (m: int) = 
                         let
-                            val l = [1, 3, 8, 7, 4, 0, 4, 5, 4, 9, 6, 6, 0, 3, 6, 5, 5, 4, 4, 2, 9, 3, 4, 8, 2, 7, 4, 1, 9, 4, 10, 9, 9, 5, 3, 7, 1, 9, 10, 6, 8, 4, 0, 7, 10, 4, 6, 9, 5, 5, 3, 4, 7, 1, 6, 3, 5, 3, 4, 6, 4, 9, 0, 1, 9, 8, 6, 0, 5, 4, 7, 3, 1, 7, 4, 5, 0, 0, 3, 3, 0, 10, 5, 1, 7, 9, 8, 2, 10, 7, 6, 2, 9, 8, 9, 4, 5, 8, 4, 0]
+                            
                             
                             fun get1 [] _ = 0
                             | get1 (l::ls) i' = if(i'=i) then (l mod m) else get1 ls (i'+1)
 
                         in  
-                            get1 l 0
+                            get1 listRandom 0
                         end          
                 in
                     if(null validMoves) then
