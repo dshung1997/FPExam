@@ -52,16 +52,16 @@ In conclusion,
         2. https://github.com/rishabh-shukla/AI-Reversi for how to have a good heuristic value
         3. Book 'AI - a modern approach' also for understading Alpha-beta pruning algorithm
 
-->  I let my AI play against that stupid bot 100 times and below is my result:
+->  I let my AI play against that stupid bot 100 times and below is the scores my AI got each time:
     
-    [34, 32, 28, 28, 6, 16, 32, 40, 34, 26, 16, 56, 48, 48, 50, 18, 32, 12, 12, 38, 28, 30, 18, 30, 26, 42, 30, 40, 38, 52, 42, 14, 24, 40, 32, 52, 32, 44, 20, 18, 22, 30, 20, 8, 28, 58, 36, 32, 30, 36, 22, 22, 24, 40, 40, 42, 36, ~6, 52, 38, 48, 26, 50, 42, 28, 48, 32, 38, 14, 22, 24, 24, 30, 60, 34, 42, 32, 48, 44, 18, 46, 38, 44, 38, 44, 18, 18, 32, 48, 16, 38, 40, 36, 44, 60, 24, 32, 32, 42, 28]
+    [42, 44, 24, 24, 24, 44, 50, 36, 26, 56, 24, 46, 18, 26, 34, 26, 44, 20, 8, 36, 62, 62, 32, 44, 42, 32, 36, 42, 44, 40, 50, 38, 22, 36, 48, 44, 58, 44, 32, 36, 34, 30, 14, 32, 46, 12, 40, 22, 26, 56, 48, 28, 4, 34, 26, 44, 22, 64, 48, 20, 42, 64, 28, 16, 46, 58, 38, 36, -4, 26, 30, 26, 46, 20, 24, 52, 28, 42, 2, 26, 58, 16, 44, 22, 28, 36, 52, 14, 40, 42, 18, 24, 10, 24, 56, 28, 14, 32, 22, 14]
 
-    Mean: 607.38
-    Min of 20 consecutive games : 555
-    Max of 20 consecutive games : 661
+    Mean: 651
+    Min of 20 consecutive games : 604
+    Max of 20 consecutive games : 698
 
 ->  Thank you, Tjark and Anke. This course and the final project are both interesting :-)
-    I struggled debugging the code and fortunately managed to finish.
+    I struggled to debug the code and fortunately managed to finish.
 
 *)
 (************************************************************************************************************************************************)
@@ -308,8 +308,11 @@ struct
                                 (count xs vs count1 count2 value)
 
                     val (c1, c2, v) = count board cellUtility 0 0 0
-                    val p = (Real.fromInt (c1-c2)) / (Real.fromInt (c1+c2))
-                    val h = (Real.fromInt v) + 8.5*p
+                    (* val p = (Real.fromInt (c1-c2)) / (Real.fromInt (c1+c2))
+                    val h = (Real.fromInt v) + 8.5*p *)
+
+                    val p = (Real.fromInt (c1-c2)) * (Real.fromInt (c1+c2)) / 64.0
+                    val h = (Real.fromInt v) + p
                 in
                     h
                 end

@@ -60,6 +60,9 @@ In conclusion,
     Min of 20 consecutive games : 555
     Max of 20 consecutive games : 661
 
+->  Thank you, Tjark and Anke. This course and the final project are both interesting :-)
+    I struggled debugging the code and fortunately managed to finish.
+
 *)
 (************************************************************************************************************************************************)
 structure Reversi_AI =
@@ -97,25 +100,57 @@ struct
     val author = "Sy-Hung Doan"
     val nickname = "rakkoon"
 
-    
+
+    (* init  p
+    TYPE: player -> int * (int list)
+    PRE:  true
+    POST: a tuple of the player (integer) and the initial board
+    *)
     fun init (p: player) =
             case p of 
                 Black => (1, originalBoard)
                 | White =>  (~1, originalBoard)
     
+
+    (* think ((plr, board), (lastMove: move), (t: Time.time))
+    TYPE: (int * (int list)) * move * Time.time -> move * (int * (int list))
+    PRE:  true
+    POST: a tuple of next move and a tuple containing information of the player and the board
+    *)
     fun think ((plr, board), (lastMove: move), (t: Time.time)) = 
         let
+            (* isValidMove board index player
+            TYPE: (int list) -> int -> int -> (bool * (int list))
+            PRE:  true
+            POST: return a tuple of a boolean indicating the index is valid or not, and a list of furthest positions to be updated
+            *)
             fun isValidMove (board: int list) (idx: int) (plr: int) = 
                 let
                     val directions = [(~1, ~1), (~1, 0), (~1, 1), (0, ~1), (0, 1), (1, ~1), (1, 0), (1, 1)]
 
+
+                    (* getNodesByDirection index direction_y direction_x
+                    TYPE: int * int * int -> int list
+                    PRE:  true
+                    POST: return a list of positions along that direction from the index
+                    *)
                     fun getNodesByDirection (idx: int) (dy: int) (dx: int) =
                         let
                             val y = idx div 8
                             val x = idx mod 8
 
+                            (* isInbound y x
+                            TYPE: int * int -> bool
+                            PRE:  true
+                            POST: whether or not this position is inbound
+                            *)
                             fun isInbound (y: int) (x: int) = (y>=0 andalso y<=7) andalso (x>=0 andalso x<=7);
 
+                            (* getNodesByDirection' y x accumulator
+                            TYPE: int * int * (int list) -> int list
+                            PRE:  true
+                            POST: a list of positions along that direction
+                            *)
                             fun getNodesByDirection' (y: int) (x: int) acc =
                                 if(isInbound y x) then
                                     getNodesByDirection' (y+dy) (x+dx) ((8*y+x)::acc)
@@ -130,6 +165,12 @@ struct
                                 (getNodesByDirection' y x [])
                         end
 
+
+                    (* getValuesFromNodes listIndexes dy dx
+                    TYPE: (int list) * int * int -> (int * int) list
+                    PRE:  true
+                    POST: a list of tuples, each inclues an index and its value
+                    *)
                     fun getValuesFromNodes (listIndexes: int list) (dy: int) (dx: int) = 
                         let
                             fun getVal _ [] _ acc = acc
@@ -150,8 +191,19 @@ struct
                                 List.tl (listValues)
                         end
 
+
+                    (* checkValues listValues
+                    TYPE: (int * int) list -> (bool * int)
+                    PRE:  true
+                    POST: whether or not there is a chance that at least a disc is flipped and the furthest position can be flipped
+                    *)
                     fun checkValues (listValues: (int * int) list) =
                         let
+                            (* checkValues' listValues lastIndex lastValue
+                            TYPE: (int * int) list -> int -> int -> (bool * int) list
+                            PRE:  true
+                            POST: whether or not there is a chance that at least a disc is flipped and the furthest position can be flipped
+                            *)
                             fun checkValues' [] (lastIndex: int) (lastValue: int) = (false, ~1)
                                 | checkValues' ((index, value)::ls) lastIndex lastValue = 
                                     if (value=0) then 
@@ -166,6 +218,12 @@ struct
                             checkValues' listValues 0 0
                         end
 
+
+                    (* checkDirection dy dx
+                    TYPE: int -> int -> bool * int
+                    PRE:  true
+                    POST: whether or not at least a disc is flipped along this direction and the furthest position can be flipped
+                    *)
                     fun checkDirection dy dx =
                         let
                             val listNodes = getNodesByDirection idx dy dx
@@ -175,8 +233,14 @@ struct
                             isValid
                         end
 
+
+                    (* checkAllDirections directions status listDest
+                    TYPE: (int * int) list -> bool -> int list -> (bool * int list)
+                    PRE:  true
+                    POST: whether or not there is at least a direction along which a disc is flipped and a list of the furthest position can be flipped
+                    *)
                     fun checkAllDirections [] status listDest = (status, listDest)
-                        | checkAllDirections ((dy, dx)::ds) status listDest = 
+                      | checkAllDirections ((dy, dx)::ds) status listDest = 
                             let
                                     val (result, dest) = checkDirection dy dx
                             in
@@ -186,14 +250,21 @@ struct
                                             checkAllDirections ds status listDest
                             end
 
-                    val (result, ld) = checkAllDirections directions false []
+
+                    val (result, listDest) = checkAllDirections directions false []
                 in
                     if(result) then 
-                        (true, ld)
+                        (true, listDest)
                     else
                         (false, [])
                 end
 
+
+            (* getAllValidMoves board player
+            TYPE: (int list) -> int -> (int * (int list)) list
+            PRE:  true
+            POST: a list of valid moves accompanying the furthest positions to be flipped for each valid move
+            *)
             fun getAllValidMoves (board: int list) (plr: int) = 
                 let
                         fun getAllValidMoves' [] i acc = acc
@@ -213,8 +284,19 @@ struct
                     listValidMoves
                 end
 
-            fun getHeuristic (board: int list) (plr: int) = 
+
+            (* getHeuristic board player
+            TYPE: int list -> int -> real
+            PRE:  true
+            POST: heuristic value of the current board and the current player
+            *)
+            (* fun getHeuristic (board: int list) (plr: int) = 
                 let
+                    (* count board cellUtility count1 count2 value
+                    TYPE: int list -> int list -> int -> int -> int
+                    PRE:  true
+                    POST: count1 is the number of player's discs, count2 is the number of opponent's discs
+                    *)
                     fun count [] _ count1 count2 value = (count1, count2, value)
                       | count _ [] count1 count2 value = (count1, count2, value)
                       | count (x::xs) (v::vs) count1 count2 value = 
@@ -230,8 +312,34 @@ struct
                     val h = (Real.fromInt v) + 8.5*p
                 in
                     h
+                end *)
+
+            fun getHeuristic (board: int list) (plr: int) = 
+                let
+                    fun count [] _ count1 count2 value = (count1, count2, value)
+                      | count _ [] count1 count2 value = (count1, count2, value)
+                      | count (x::xs) (v::vs) count1 count2 value = 
+                        if(x = plr) then
+                                (count xs vs (count1+1) count2 (value+v))
+                        else if(x = (0-plr)) then
+                                (count xs vs count1 (count2+1) (value-v))
+                        else
+                                (count xs vs count1 count2 value)
+
+                    val (c1, c2, v) = count board cellUtility 0 0 0
+
+                    val p = (Real.fromInt (c1-c2)) * (Real.fromInt (c1+c2)) / 64.0
+                    val h = (Real.fromInt v) + p
+                in
+                    h
                 end
 
+
+            (* getMiddleNodes from to
+            TYPE: int -> int -> int list
+            PRE:  true
+            POST: a list of nodes between node from and node to
+            *)
             fun getMiddleNodes (from: int) (to: int) = 
                 let
                     val fromy = from div 8
@@ -243,6 +351,12 @@ struct
                     val dy = if(fromy = toy) then 0 else if (fromy < toy) then 1 else ~1
                     val dx = if(fromx = tox) then 0 else if (fromx < tox) then 1 else ~1
 
+
+                    (* get from_y from_x to_y to_x accumulator
+                    TYPE: int -> int -> int -> int -> int list
+                    PRE:  true
+                    POST: a list of nodes between node from and node to
+                    *)
                     fun get fy fx ty tx acc = 
                         if(fy=ty andalso fx=tx) then
                             (8*fy+fx)::acc
@@ -257,6 +371,12 @@ struct
                         listNodes
                 end
 
+
+            (* update board from to value
+            TYPE: int list -> int -> int list -> int -> int list
+            PRE:  true
+            POST: a new board after updating nodes between node from and each in node to with value
+            *)
             fun update (board: int list) (from: int) (to: int list) (value: int) = 
                 let
                     fun update' [] _ _ acc = List.rev acc
@@ -279,6 +399,12 @@ struct
                     iter board to
                 end
 
+
+            (* getNextMove board lastMove currentPlayer maxDepth
+            TYPE: int list -> int -> int -> int -> int * (int list)
+            PRE:  true
+            POST: a tuple of the next move and a list of furthest positions to be flipped
+            *)
             fun getNextMove (board: int list) (lastMove: int) (crtPlr: int) (maxDepth: int) =
                 let
                     val validMoves = getAllValidMoves board crtPlr
@@ -287,6 +413,12 @@ struct
 
                     fun changeMode (mode: X) = if(mode=Min) then Max else Min
 
+
+                    (* minimax board index player depth mode a b
+                    TYPE: int list -> int -> int -> int -> X -> real -> real -> int * (int list) * real * int
+                    PRE:  true
+                    POST: next move to make, a list of furthest positions to be flipped, the heuristic value, the player to make move
+                    *)
                     fun minimax (board: int list) (idx: int) (plr: int) (depth: int) (mode: X) (a: real) (b: real) = 
                         let
                             fun mnm' 0 _ _ = (idx, [], (getHeuristic board plr), plr)
@@ -339,6 +471,12 @@ struct
                         end
                 end
 
+
+            (* strBoard board player lastMove
+            TYPE: int list -> int -> int -> string
+            PRE:  true
+            POST: a string describing the board
+            *)
             fun strBoard (board: int list) (plr: int) (lastMove: int) = 
                 let
                     val b = "----1--2--3--4--5--6--7--8\n"
