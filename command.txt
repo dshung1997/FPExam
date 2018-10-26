@@ -1,0 +1,38 @@
+beurling.it.uu.se
+celsius.it.uu.se
+geijer.it.uu.se
+fries.it.uu.se
+linne.it.uu.se
+polhem.it.uu.se
+scheele.it.uu.se
+sernander.it.uu.se
+svedberg.it.uu.se
+tiselius.it.uu.se
+
+git clone https://github.com/dshung1997/FGexam
+
+
+chmod +x reversi && export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/it/sw/ml/lib
+
+
+cp black.sml n.sml && cp white.sml black.sml && cp n.sml white.sml
+
+
+
+cp minh.sml black.sml && cp minh.sml white.sml
+
+
+cp hung.sml white.sml
+
+
+./reversi
+
+
+
+
+
+cp exam.sml black.sml && cp exam.sml white.sml
+
+
+
+nano bot.sml && cp bot.sml white.sml && ./reversi && cp black.sml n.sml && cp white.sml black.sml && cp n.sml white.sml && ./reversi && cp black.sml n.sml && cp white.sml black.sml && cp n.sml white.sml
