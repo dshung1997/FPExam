@@ -60,6 +60,9 @@ In conclusion,
     Min of 20 consecutive games : 555
     Max of 20 consecutive games : 661
 
+->  Thank you, Tjark and Anke. This course and the final project are both interesting :-)
+    I struggled debugging the code and fortunately managed to finish.
+
 *)
 (************************************************************************************************************************************************)
 structure Reversi_AI =
